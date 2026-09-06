@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FedTalent — AI Freelancer Contract Review + Rate Benchmark (MVP)</title>
+<style>
+  body { font-family: -apple-system, Helvetica, Arial, sans-serif; background:#0f0d14; color:#eee; margin:0; padding:2rem; }
+  h1 { font-size:1.4rem; }
+  .note { color:#c9a8ff; font-size:0.85rem; max-width:680px; line-height:1.4; }
+  textarea { width:100%; max-width:680px; height:160px; background:#161020; color:#eee; border:1px solid #382a4a; border-radius:6px; padding:0.6rem; font-family:monospace; }
+  button { margin-top:0.6rem; padding:0.6rem 1.2rem; background:#7a4fc9; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+  pre { background:#161020; padding:1rem; border-radius:6px; max-width:680px; overflow:auto; }
+  select, input { padding:0.3rem; border-radius:4px; border:1px solid #382a4a; background:#161020; color:#eee; margin-right:0.5rem; }
+  .risk-high { color:#ff8080; } .risk-medium { color:#ffcf80; } .risk-low { color:#c9ffb0; } .risk-minimal { color:#80c9ff; }
+</style>
+</head>
+<body>
+<h1>FedTalent — Contract Redline + Rate Benchmark</h1>
+<p class="note">MVP scope, honest version: paste a contract below for a real regex/heuristic
+clause scan (not a legal opinion -- flags common risky patterns: unlimited liability, broad IP
+assignment, Net-90 terms, non-competes, one-sided termination) with a suggested redline note per
+flagged clause. Below that, a rate benchmark computed from your specialty and experience using a
+real (simplified) formula. This is a first-pass tool, same role as a junior associate's initial
+read -- not a substitute for an actual contract attorney on anything high-stakes.</p>
+
+<h3>1. Contract text</h3>
+<textarea id="contract">This Agreement may be terminated by Client at its sole discretion at any time without notice or compensation. Payment terms are Net 90 from invoice date. Contractor agrees to unlimited liability for any damages arising from this engagement.</textarea>
+<br>
+<button id="runContract">Review contract</button>
+<pre id="contractOut"></pre>
+
+<h3>2. Rate benchmark</h3>
+<label>Specialty:
+  <select id="specialty">
+    <option value="prompt-engineering">Prompt Engineering</option>
+    <option value="fine-tuning">Fine-Tuning</option>
+    <option value="ai-consulting">AI Consulting</option>
+    <option value="ml-engineering">ML Engineering</option>
+    <option value="data-annotation-ops">Data Annotation Ops</option>
+  </select>
+</label>
+<label>Years experience: <input id="years" type="number" value="3" min="0" style="width:4rem"></label>
+<label>Hours/week: <input id="hours" type="number" value="20" min="1" style="width:4rem"></label>
+<button id="runRate">Compute rate</button>
+<pre id="rateOut"></pre>
+
+<script src="contract-review.js"></script>
+<script>
+function runContract() {
+  const out = document.getElementById('contractOut');
+  try {
+    const r = reviewContract(document.getElementById('contract').value);
+    out.innerHTML = `<span class="risk-${r.overallRisk}">Overall risk: ${r.overallRisk.toUpperCase()}</span> (${r.clauseCount} clauses flagged)\n\n` +
+      r.flaggedClauses.map(f => `[${f.severity}] ${f.id}\n  -> ${f.note}`).join('\n\n');
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+function runRate() {
+  const out = document.getElementById('rateOut');
+  try {
+    const r = rateBenchmark({
+      specialty: document.getElementById('specialty').value,
+      yearsExperience: parseFloat(document.getElementById('years').value),
+      hoursPerWeek: parseFloat(document.getElementById('hours').value)
+    });
+    out.textContent = JSON.stringify(r, null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+document.getElementById('runContract').addEventListener('click', runContract);
+document.getElementById('runRate').addEventListener('click', runRate);
+runContract();
+runRate();
+</script>
+</body>
+</html>
