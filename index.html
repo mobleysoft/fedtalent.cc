@@ -78,6 +78,22 @@
         }
         .metric-value { font-size: 2rem; font-weight: 600; color: #00ffcc; }
         .metric-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 5px; }
+        .cta-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 28px;
+            background: #00ffcc;
+            color: #050505;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            letter-spacing: 0.02em;
+            transition: all 0.2s ease;
+        }
+        .cta-button:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
         
         /* Micro-interactions */
         .status-dot {
@@ -94,22 +110,6 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- MASCOM_ANALYTICS_CORTEX -->
-    <script>
-        (function() {
-            try {
-                const payload = {
-                    node: "fedtalent.cc",
-                    timestamp: new Date().toISOString(),
-                    vector: window.location.pathname,
-                    agent: navigator.userAgent
-                };
-                navigator.sendBeacon("http://127.0.0.1:8889/track", JSON.stringify(payload));
-            } catch(e) {}
-        })();
-    </script>
-    
 </head>
 <body>
     <div id="canvas-container"></div>
@@ -121,23 +121,12 @@
         </div>
         <h1>FEDTALENT.CC</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; max-width: 600px;">
-            Premium, enigmatic, hyper-modern. Physical environment protocol: cyber_grid.
+            Representation for freelance AI practitioners. Real, working first tool:
+            paste a client contract and get a redline pass flagging risky clauses
+            (unlimited liability, Net-90 terms, broad IP assignment, non-competes),
+            plus a rate benchmark for your specialty and experience level.
         </p>
-        
-        <div class="metrics">
-            <div class="metric-card">
-                <div class="metric-value">99.9%</div>
-                <div class="metric-label">Neural Coherence</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">0ms</div>
-                <div class="metric-label">API Latency</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">LOCAL</div>
-                <div class="metric-label">Execution Vector</div>
-            </div>
-        </div>
+        <a class="cta-button" href="mvp/index.html">Try the contract review tool &rarr;</a>
     </div>
 
     <script>
@@ -212,10 +201,10 @@
 
     <!-- MASCOM_INTERLINK -->
     <div style="position: absolute; bottom: 20px; right: 40px; z-index: 100; font-family: monospace; font-size: 0.7rem; letter-spacing: 0.1em; display: flex; gap: 20px;">
-        <a href="blog.html" style="color: #00ffcc; text-decoration: none; text-shadow: 0 0 5px rgba(0,255,204,0.3); transition: color 0.2s;">INTELLIGENCE CORTEX</a>
-        
-        <a href="http://localhost:8888" style="color: #888; text-decoration: none; transition: color 0.2s;">SOVEREIGN GATEWAY</a>
+        <a href="mvp/index.html" style="color: #00ffcc; text-decoration: none; text-shadow: 0 0 5px rgba(0,255,204,0.3); transition: color 0.2s;">CONTRACT REVIEW MVP</a>
+
+        <a href="blog.html" style="color: #888; text-decoration: none; transition: color 0.2s;">INTELLIGENCE CORTEX</a>
     </div>
-    
+
 </body>
 </html>
