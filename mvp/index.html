@@ -13,6 +13,9 @@
   pre { background:#161020; padding:1rem; border-radius:6px; max-width:680px; overflow:auto; }
   select, input { padding:0.3rem; border-radius:4px; border:1px solid #382a4a; background:#161020; color:#eee; margin-right:0.5rem; }
   .risk-high { color:#ff8080; } .risk-medium { color:#ffcf80; } .risk-low { color:#c9ffb0; } .risk-minimal { color:#80c9ff; }
+  .roster-box { max-width:680px; margin-top:1rem; padding:1rem; border:1px solid #382a4a; border-radius:6px; background:#161020; }
+  .roster-box input[type=email] { width:100%; max-width:300px; }
+  .roster-note { font-size:0.8rem; color:#888; margin-top:0.4rem; }
 </style>
 </head>
 <body>
@@ -45,6 +48,19 @@ read -- not a substitute for an actual contract attorney on anything high-stakes
 <button id="runRate">Compute rate</button>
 <pre id="rateOut"></pre>
 
+<h3>3. Get represented</h3>
+<p class="note">FedTalent is a talent agency for freelance AI practitioners - if you'd rather have someone negotiate
+this contract and your rate for you (standard 15-20% commission on booked engagements, only if we land you work),
+leave your email below. We'll follow up with the exact contract flags and rate estimate above already in hand.</p>
+<form id="rosterForm" class="roster-box">
+  <input id="rosterEmail" type="email" placeholder="you@example.com" required>
+  <br><br>
+  <textarea id="rosterMessage" placeholder="Anything else we should know? (optional)" style="height:60px"></textarea>
+  <br>
+  <button type="submit">Get represented</button>
+  <div class="roster-note" id="rosterOut"></div>
+</form>
+
 <script src="contract-review.js"></script>
 <script>
 function runContract() {
@@ -70,6 +86,35 @@ document.getElementById('runContract').addEventListener('click', runContract);
 document.getElementById('runRate').addEventListener('click', runRate);
 runContract();
 runRate();
+
+function runRoster(e) {
+  e.preventDefault();
+  const out = document.getElementById('rosterOut');
+  const email = document.getElementById('rosterEmail').value.trim();
+  out.textContent = 'Submitting...';
+  fetch('/api/fedtalent/roster-lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: email,
+      specialty: document.getElementById('specialty').value,
+      years_experience: parseFloat(document.getElementById('years').value),
+      rate_context: document.getElementById('rateOut').textContent.slice(0, 500),
+      contract_risk_context: document.getElementById('contractOut').textContent.slice(0, 500),
+      message: document.getElementById('rosterMessage').value.trim()
+    })
+  })
+    .then(r => r.json().then(data => ({ status: r.status, data })))
+    .then(({ status, data }) => {
+      if (status === 201 && data.ok) {
+        out.textContent = 'Thanks - saved. A real person reviews these and will follow up by email, not an automated drip campaign.';
+      } else {
+        out.textContent = 'Error: ' + (data.detail?.message || 'submission failed');
+      }
+    })
+    .catch(err => { out.textContent = 'Error: ' + err.message; });
+}
+document.getElementById('rosterForm').addEventListener('submit', runRoster);
 </script>
 </body>
 </html>
