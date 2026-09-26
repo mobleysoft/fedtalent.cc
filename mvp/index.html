@@ -31,6 +31,7 @@ read -- not a substitute for an actual contract attorney on anything high-stakes
 <textarea id="contract">This Agreement may be terminated by Client at its sole discretion at any time without notice or compensation. Payment terms are Net 90 from invoice date. Contractor agrees to unlimited liability for any damages arising from this engagement.</textarea>
 <br>
 <button id="runContract">Review contract</button>
+<button id="downloadReport" type="button">Download redline report (.txt)</button>
 <pre id="contractOut"></pre>
 
 <h3>2. Rate benchmark</h3>
@@ -63,13 +64,17 @@ leave your email below. We'll follow up with the exact contract flags and rate e
 
 <script src="contract-review.js"></script>
 <script>
+let lastReview = null;
+let lastRate = null;
+
 function runContract() {
   const out = document.getElementById('contractOut');
   try {
     const r = reviewContract(document.getElementById('contract').value);
+    lastReview = r;
     out.innerHTML = `<span class="risk-${r.overallRisk}">Overall risk: ${r.overallRisk.toUpperCase()}</span> (${r.clauseCount} clauses flagged)\n\n` +
       r.flaggedClauses.map(f => `[${f.severity}] ${f.id}\n  -> ${f.note}`).join('\n\n');
-  } catch (e) { out.textContent = 'Error: ' + e.message; }
+  } catch (e) { lastReview = null; out.textContent = 'Error: ' + e.message; }
 }
 function runRate() {
   const out = document.getElementById('rateOut');
@@ -79,11 +84,31 @@ function runRate() {
       yearsExperience: parseFloat(document.getElementById('years').value),
       hoursPerWeek: parseFloat(document.getElementById('hours').value)
     });
+    lastRate = r;
     out.textContent = JSON.stringify(r, null, 2);
-  } catch (e) { out.textContent = 'Error: ' + e.message; }
+  } catch (e) { lastRate = null; out.textContent = 'Error: ' + e.message; }
+}
+function downloadReport() {
+  if (!lastReview) { runContract(); }
+  if (!lastReview) return;
+  const report = buildRedlineReport({
+    contractText: document.getElementById('contract').value,
+    review: lastReview,
+    rate: lastRate
+  });
+  const blob = new Blob([report], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fedtalent-redline-report.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 document.getElementById('runContract').addEventListener('click', runContract);
 document.getElementById('runRate').addEventListener('click', runRate);
+document.getElementById('downloadReport').addEventListener('click', downloadReport);
 runContract();
 runRate();
 

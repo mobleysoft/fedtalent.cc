@@ -124,6 +124,37 @@ function rateBenchmark({ specialty, yearsExperience, hoursPerWeek = 20 }) {
 
 function round2(n) { return Math.round(n * 100) / 100; }
 
+// A real, tangible takeaway for a user who ran the free tool -- the
+// on-screen result disappears when the tab closes; this gives them
+// something to actually save or forward to a client.
+function buildRedlineReport({ contractText, review, rate }) {
+  const lines = [];
+  lines.push('FedTalent Contract Redline Report');
+  lines.push('Generated: ' + new Date().toISOString());
+  lines.push('Automated first-pass regex/heuristic scan -- not a legal opinion. Consult an attorney for anything high-stakes.');
+  lines.push('');
+  lines.push('OVERALL RISK: ' + review.overallRisk.toUpperCase() + ' (' + review.clauseCount + ' clause(s) flagged)');
+  lines.push('');
+  if (review.flaggedClauses.length > 0) {
+    lines.push('FLAGGED CLAUSES:');
+    review.flaggedClauses.forEach(f => {
+      lines.push('- [' + f.severity.toUpperCase() + '] ' + f.id);
+      lines.push('    Redline: ' + f.note);
+    });
+  } else {
+    lines.push('No flagged clauses found by the automated scan.');
+  }
+  if (rate) {
+    lines.push('');
+    lines.push('RATE BENCHMARK (' + rate.specialty + ', ' + rate.yearsExperience + ' yrs experience):');
+    lines.push('  $' + rate.hourlyRateLow + ' - $' + rate.hourlyRateHigh + '/hr (mid $' + rate.hourlyRateMid + '), ~$' + rate.weeklyEstimateAtMidRate + '/week at that rate');
+  }
+  lines.push('');
+  lines.push('--- ORIGINAL CONTRACT TEXT ---');
+  lines.push(contractText);
+  return lines.join('\n');
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { reviewContract, rateBenchmark, SPECIALTY_BASE_RATES };
+  module.exports = { reviewContract, rateBenchmark, buildRedlineReport, SPECIALTY_BASE_RATES };
 }
